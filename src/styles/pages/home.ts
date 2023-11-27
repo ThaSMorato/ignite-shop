@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { styled } from "..";
 
 export const HomeContainer = styled('main', {
@@ -9,7 +10,7 @@ export const HomeContainer = styled('main', {
   minHeight: '656px'
 })
 
-export const Product = styled('a', {
+export const Product = styled(Link, {
   background: 'linear-gradient(180deg, #1ea483 0%, #7465d5 100%)',
   borderRadius: 8,
   // padding: '0.25rem',
