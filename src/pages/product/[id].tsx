@@ -1,7 +1,9 @@
 import { stripe } from "@/src/lib/stripe"
 import { ImageContainer, ProductContainer, ProductDetails } from "@/src/styles/pages/product"
+import axios from "axios"
 import { GetStaticPaths, GetStaticProps } from "next"
 import Image from "next/image"
+import { useState } from "react"
 import Stripe from "stripe"
 
 interface ProductProps {
@@ -11,10 +13,32 @@ interface ProductProps {
     imageUrl: string
     price: string
     description: string
+    priceId: string
   }
 }
 
 const Product = ({product}: ProductProps) => {
+
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
+
+  const handleBuyProduct = async () => {
+    try {
+      setIsCreatingCheckoutSession(true)
+      const response = await axios.post('/api/checkout', {
+        priceId: product.priceId,
+      })
+
+      const { checkoutUrl } = response.data
+
+      window.location.href = checkoutUrl
+    } catch (error) {
+      // Sentry, Datadog
+      setIsCreatingCheckoutSession(false)
+      alert('Falha ao rediricionar')
+    }
+
+  }
+
   return (
     <ProductContainer>
       <ImageContainer>
@@ -26,7 +50,7 @@ const Product = ({product}: ProductProps) => {
 
         <p>{product.description}</p>
 
-        <button>
+        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
           Comprar agora
         </button>
       </ProductDetails>
@@ -58,6 +82,7 @@ export const getStaticProps: GetStaticProps<any, {id: string}> = async ({ params
       imageUrl: images[0],
       price,
       description,
+      priceId: d_price.id,
     }
 
   return {
